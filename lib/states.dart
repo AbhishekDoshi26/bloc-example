@@ -26,3 +26,13 @@ class UpdateLike extends EmployeeStates {
   @override
   List<Object> get props => [likes];
 }
+
+class IncrementLoader extends EmployeeStates {
+  @override
+  List<Object> get props => [];
+}
+
+class DecrementLoader extends EmployeeStates {
+  @override
+  List<Object> get props => [];
+}

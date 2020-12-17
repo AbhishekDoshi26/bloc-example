@@ -54,48 +54,72 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class Data extends StatelessWidget {
+class Data extends StatefulWidget {
   final int id;
   final String name;
-  int likes = 0;
-  int dislikes = 0;
+
   Data({this.id, this.name});
+
+  @override
+  _DataState createState() => _DataState();
+}
+
+class _DataState extends State<Data> {
+  int likes = 0;
+
+  int dislikes = 0;
 
   @override
   Widget build(BuildContext context) {
     EmployeeBloc employeeBloc = BlocProvider.of<EmployeeBloc>(context);
-    return BlocBuilder<EmployeeBloc, EmployeeStates>(
-      cubit: employeeBloc,
-      builder: (BuildContext context, state) {
-        return Card(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('ID: $id'),
-              Text('Name: $name'),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.thumb_up),
-                    onPressed: () {
-                      employeeBloc.add(UpdateLikeEvent(current: likes));
-                    },
-                  ),
-                  Text('Likes: $likes'),
-                  IconButton(
-                    icon: Icon(Icons.thumb_down),
-                    onPressed: () {
-                      employeeBloc.add(UpdateDislikeEvent(current: dislikes));
-                    },
-                  ),
-                  Text('Dislikes: $dislikes'),
-                ],
-              ),
-            ],
-          ),
-        );
+    return BlocListener<EmployeeBloc, EmployeeStates>(
+      listener: (BuildContext context, state) {
+        if (state is UpdateLike)
+          setState(() {
+            likes = state.likes;
+          });
+        if (state is UpdateDislike)
+          setState(() {
+            dislikes = state.dislikes;
+          });
       },
+      child: BlocBuilder<EmployeeBloc, EmployeeStates>(
+        //cubit: employeeBloc,
+        builder: (BuildContext context, state) {
+          return Card(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('ID: ${widget.id}'),
+                Text('Name: ${widget.name}'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.thumb_up),
+                      onPressed: () {
+                        employeeBloc.add(UpdateLikeEvent(current: likes));
+                      },
+                    ),
+                    state is IncrementLoader
+                        ? CircularProgressIndicator()
+                        : Text('Likes: $likes'),
+                    IconButton(
+                      icon: Icon(Icons.thumb_down),
+                      onPressed: () {
+                        employeeBloc.add(UpdateDislikeEvent(current: dislikes));
+                      },
+                    ),
+                    state is DecrementLoader
+                        ? CircularProgressIndicator()
+                        : Text('Dislikes: $dislikes'),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
