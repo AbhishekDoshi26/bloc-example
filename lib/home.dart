@@ -69,19 +69,28 @@ class _DataState extends State<Data> {
 
   int dislikes = 0;
 
+  EmployeeBloc employeeBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    employeeBloc = BlocProvider.of<EmployeeBloc>(context);
+  }
+
+  @override
+  void dispose() {
+    employeeBloc.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    EmployeeBloc employeeBloc = BlocProvider.of<EmployeeBloc>(context);
     return BlocListener<EmployeeBloc, EmployeeStates>(
       listener: (BuildContext context, state) {
         if (state is UpdateLike)
-          setState(() {
-            likes = state.likes;
-          });
+          setState(() => likes = state.likes);
         if (state is UpdateDislike)
-          setState(() {
-            dislikes = state.dislikes;
-          });
+          setState(() => dislikes = state.dislikes);
       },
       child: BlocBuilder<EmployeeBloc, EmployeeStates>(
         //cubit: employeeBloc,
@@ -97,18 +106,14 @@ class _DataState extends State<Data> {
                   children: [
                     IconButton(
                       icon: Icon(Icons.thumb_up),
-                      onPressed: () {
-                        employeeBloc.add(UpdateLikeEvent(current: likes));
-                      },
+                      onPressed: () => employeeBloc.add(UpdateLikeEvent(current: likes)),
                     ),
                     state is IncrementLoader
                         ? CircularProgressIndicator()
                         : Text('Likes: $likes'),
                     IconButton(
                       icon: Icon(Icons.thumb_down),
-                      onPressed: () {
-                        employeeBloc.add(UpdateDislikeEvent(current: dislikes));
-                      },
+                      onPressed: () => employeeBloc.add(UpdateDislikeEvent(current: dislikes)),
                     ),
                     state is DecrementLoader
                         ? CircularProgressIndicator()
